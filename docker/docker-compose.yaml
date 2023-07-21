@@ -1,0 +1,47 @@
+version: "3"
+
+networks:
+    backend:
+        driver: bridge
+
+services:
+
+    php-apache:
+        container_name: php-apache
+        image: local/php:${PHP_VERSION}-apache
+        build:
+            context: ./php-apache
+            args:
+                PHP_VERSION: ${PHP_VERSION}
+                TZ: ${TZ}
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+        restart: unless-stopped
+        ports:
+            - "80:80"
+        volumes:
+            - ./../app:/var/www/html/:rw
+        env_file:
+            - .env
+        networks:
+            - backend
+
+    mysql:
+        container_name: mysql
+        image: local/mysql:${MYSQL_VERSION}
+        build:
+            context: ./mysql
+            args:
+                TZ: ${TZ}
+                MYSQL_VERSION: ${MYSQL_VERSION}
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+        restart: unless-stopped
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql/test_db.sql:/docker-entrypoint-initdb.d/test_db.sql
+        env_file:
+            - ./mysql/.env.master
+        networks:
+            - backend
