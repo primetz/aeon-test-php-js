@@ -9,8 +9,8 @@ class User {
         $user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
         $phone = isset($d['phone']) ? preg_replace('~\D+~', '', $d['phone']) : 0;
         // where
-        if (isset($user_id)) $where = "user_id='".$user_id."'";
-        else if (isset($phone)) $where = "phone='".$phone."'";
+        if ($user_id || !$phone) $where = "user_id='".$user_id."'";
+        else if ($phone) $where = "phone='".$phone."'";
         else return [];
         // info
         $q = DB::query("SELECT user_id, first_name, last_name, email, phone, access FROM users WHERE ".$where." LIMIT 1;") or die (DB::error());
